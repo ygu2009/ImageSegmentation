@@ -93,6 +93,8 @@ maxiter=1000;
 mu=mu_mapEM;
 sigma=sigma_mapEM;
 pipi=pipi_mapEM;
+
+% remove the extinguished class/object
 ind=find(pipi<0.01);
 mu(ind)=[];
 sigma(ind)=[];
