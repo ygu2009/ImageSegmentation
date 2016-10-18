@@ -14,8 +14,6 @@ y(find(y<low_bkg))=[];
 y(find(y>high_bkg))=[];
 bkg_num=length(find(imdata<low_bkg | imdata>high_bkg));
 
-mycolor=lines;
-
 
 %% Using kmeans clustering method
 K=10;
@@ -52,14 +50,14 @@ box on
 drawnow;
 
 [rows, cols]=size(imdata);
+mycolor=lines;
 
 %% Image segmentation based on results from Kmeans clustering method
 mex Kmeans_2Dseg.c
 [r_state]=Kmeans_2Dseg(imdata, mu, sigma, pipi, low_bkg, high_bkg);
 
-[seg, state]=showSegmentation(r_state, K, imdata, low_bkg, high_bkg, mycolor);
-figure, imshow(label2rgb(seg, mycolor)),title('Kmeans clustering');
-drawnow;
+[]
+
 
 %% using MAP EM
 % initial priors
@@ -114,15 +112,36 @@ for i=1:K
     yy = pipi(i)*normpdf(xx, mu(i), (sigma(i))^(1/2));
     plot(xx, yy, 'LineWidth',4,'Color',mycolor(i,:))
 end
-title(['MAPEM: ', num2str(K), ' classes'])
+title(['MAPEM:', num2str(K), ' classes'])
 box on
 drawnow;
 
 %% Image segmentation based on results from MAPEM clustering
 [r_state]=Kmeans_2Dseg(imdata, mu, sigma, pipi, low_bkg, high_bkg);
 
-[seg, state]=showSegmentation(r_state, K, imdata, low_bkg, high_bkg, mycolor);
+n=0;
+for k=1:length(mu)
+    for j=1:cols
+        for i=1:rows
+            n=n+1;
+            state(i,j,k)=r_state(n);
+        end
+    end
+end
+
+% MAPEM clustering result
+seg=zeros(rows,cols);
+for i=1:rows
+    for j=1:cols
+        ind=find(state(i,j,:)==max(state(i,j,:)));
+        seg(i,j)=ind(1);
+        if imdata(i,j)<low_bkg | imdata(i,j)>high_bkg
+            seg(i,j)=0;
+        end
+    end
+end
 figure,imshow(label2rgb(seg, mycolor)),title('MAPEM clustering'),drawnow;
+
 
 % Kmeans initials plot
 fig=figure,
@@ -190,18 +209,38 @@ while iter<100 %& diff_Q>1e-10
     iter=iter+1
     
     %%% EM step
-    [r_state, mu_hat, sigma_hat, pipi_hat, nc]=MAPEM_MRF_2Dseg(imdata, mu, sigma, pipi, state, flag, MRF_beta, MAP_alpha, MAP_beta_0, MAP_m0, MAP_S0, MAP_v0, low_bkg, high_bkg, bkg_num); 
-
+    tic
+    [r_state, mu_hat, sigma_hat, pipi_hat, nc]=MAPEM_MRF_2Dseg(imdata, mu, sigma, pipi, state, flag, MRF_beta, MAP_alpha, MAP_beta_0, MAP_m0, MAP_S0, MAP_v0, low_bkg, high_bkg, bkg_num);
+    
+    
+    n=0;
+    for k=1:length(mu)
+        for j=1:cols
+            for i=1:rows
+                n=n+1;
+                state(i,j,k)=r_state(n);
+            end
+        end
+    end
+    
+    mu_hat=mu_hat';
+    sigma_hat=sigma_hat';
+    pipi_hat=pipi_hat';
+    
+    toc
+    
     %deal with extinguished clusters
     for j=1:K
         if nc(j)<=10
             flag(j)=1;
         end
     end
-
-    mu_hat=mu_hat';
-    sigma_hat=sigma_hat';
-    pipi_hat=pipi_hat';
+    
+    
+    % convergence test
+    
+    %     Q=sum(sum(abs(mu-mu_hat)./abs(mu)))+sum(sum(abs(sigma-sigma_hat)./abs(sigma))) +sum(abs(pipi-pipi_hat)./abs(pipi))
+    %     diff_Q=Q/K;
     
     Q=0;
     for j=1:K
@@ -217,8 +256,17 @@ while iter<100 %& diff_Q>1e-10
     sigma=sigma_hat;
     pipi=pipi_hat;
     
-    [seg, state]=showSegmentation(r_state, K, imdata, low_bkg, high_bkg, mycolor);
-    
+
+    seg=zeros(rows,cols);
+    for i=1:rows
+        for j=1:cols
+            ind=find(state(i,j,:)==max(state(i,j,:)));
+            seg(i,j)=ind(1);
+            if imdata(i,j)<low_bkg | imdata(i,j)>high_bkg
+                seg(i,j)=0;
+            end
+        end
+    end
     hold off
     imshow(label2rgb(seg, mycolor))
     title(strcat('iter:',num2str(iter)))
