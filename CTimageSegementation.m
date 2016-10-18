@@ -22,17 +22,11 @@ K=10;
 
 [IDX,C] = kmeans(y,K,'emptyaction','singleton','MaxIter',500);
 for i=1:K
-    mu_kmeans(i)=mean(y(find(IDX(:)==i),:));
-    sigma_kmeans(i)=(cov(y(find(IDX(:)==i),:)));
-    pipi_kmeans(i)=length(y(find(IDX(:)==i),:));
+    mu(i)=mean(y(find(IDX(:)==i),:));
+    sigma(i)=(cov(y(find(IDX(:)==i),:)));
+    pipi(i)=length(y(find(IDX(:)==i),:));
 end
-pipi_kmeans=pipi_kmeans/sum(pipi_kmeans);
-
-mu=mu_kmeans;
-sigma=sigma_kmeans;
-pipi=pipi_kmeans;
-
-K=length(mu);
+pipi=pipi/sum(pipi);
 
 figure
 bins=low_bkg:5:high_bkg;
@@ -57,8 +51,8 @@ drawnow;
 mex Kmeans_2Dseg.c
 [r_state]=Kmeans_2Dseg(imdata, mu, sigma, pipi, low_bkg, high_bkg);
 
-[seg, state]=showSegmentation(r_state, K, imdata, low_bkg, high_bkg, mycolor);
-figure, imshow(label2rgb(seg, mycolor)),title('Kmeans clustering');
+[seg_Kmeans]=showSegmentation(r_state, K, imdata, low_bkg, high_bkg, mycolor);
+figure, imshow(label2rgb(seg_Kmeans, mycolor)),title('Kmeans clustering');
 drawnow;
 
 %% using MAP EM
@@ -121,12 +115,12 @@ drawnow;
 %% Image segmentation based on results from MAPEM clustering
 [r_state]=Kmeans_2Dseg(imdata, mu, sigma, pipi, low_bkg, high_bkg);
 
-[seg, state]=showSegmentation(r_state, K, imdata, low_bkg, high_bkg, mycolor);
-figure,imshow(label2rgb(seg, mycolor)),title('MAPEM clustering'),drawnow;
+[seg_MAPEM, state]=showSegmentation(r_state, K, imdata, low_bkg, high_bkg, mycolor);
+figure,imshow(label2rgb(seg_MAPEM, mycolor)),title('MAPEM clustering'),drawnow;
 
-% Kmeans initials plot
+% initials segmentation from MAPEM clustering
 fig=figure,
-imshow(label2rgb(seg, mycolor)),title('MAPEM clustering');
+imshow(label2rgb(seg_MAPEM, mycolor)),title('MAPEM clustering');
 
 winsize = get(fig,'Position');
 winsize(1:2) = [0 0];
@@ -134,7 +128,7 @@ mm=1;
 mov(mm) = getframe(fig, winsize);
 
 
-%%%MAP Priors
+% MAP Priors
 D=2;
 MAP_alpha=0.001*ones(1,K);
 MAP_beta_0=10*ones(1,K);
@@ -171,7 +165,7 @@ for n=1:4
 end
 
 
-% %% Regular EM initials 
+% % Regular EM initials 
 % MAP_alpha=1*ones(1,K);
 % MAP_beta_0=0*ones(1,K);
 % MAP_m0=0*ones(K,D);
@@ -203,6 +197,7 @@ while iter<100 %& diff_Q>1e-10
     sigma_hat=sigma_hat';
     pipi_hat=pipi_hat';
     
+    % convergence
     Q=0;
     for j=1:K
         if flag(j)==-1
