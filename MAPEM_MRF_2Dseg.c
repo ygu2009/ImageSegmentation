@@ -18,7 +18,7 @@ void mexFunction(int nlhs, mxArray *plhs[],
     num_data=mxGetNumberOfElements(prhs[0]);
     num_K=mxGetNumberOfElements(prhs[1]);
     
-    /* Get the data. */
+    /* Get the data and parameters */
     p_data = (double *)mxGetPr(prhs[0]);
     p_mu=(double *)mxGetPr(prhs[1]);
     p_sigma=(double *)mxGetPr(prhs[2]);
