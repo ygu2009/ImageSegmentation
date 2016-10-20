@@ -1,5 +1,10 @@
 function [mu, sigma, PI]=MAP_EM_1D(y, mu, sigma, PI, maxiter, m0, S0, v0, alpha, beta_0, bins)
 
+% Author: Yingying Gu (ying.y.gu@gmail.com)
+% version 1.0
+% Copyright 2014
+% University of Wisconsin-Milwaukee
+
 % initials from the results of kmeans clustering
 figure
 [histxx, xout]=hist(y,bins);
