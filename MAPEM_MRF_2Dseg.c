@@ -1,3 +1,9 @@
+/**********************************************
+* Author: Yingying Gu (ying.y.gu@gmail.com)
+* version 1.0
+* Copyright 2015
+* University of Wisconsin-Milwaukee
+***********************************************/
 #include "mex.h"
 #include "stdio.h"
 #include "stdint.h"

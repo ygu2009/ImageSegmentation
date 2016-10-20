@@ -1,3 +1,9 @@
+/**********************************************
+* Author: Yingying Gu (ying.y.gu@gmail.com)
+* version 1.0
+* Copyright 2015
+* University of Wisconsin-Milwaukee
+***********************************************/
 #include "mex.h"
 #include "stdio.h"
 #include "stdint.h"
@@ -85,15 +91,19 @@ void mexFunction(int nlhs, mxArray *plhs[],
                 
             }
         }
+        
     }
     
     /*Allocate the space for the return argument */
+    
     int temp=rows*cols*num_K;
     plhs[0] =mxCreateDoubleMatrix(temp, 1, mxREAL);
     r_state = mxGetPr(plhs[0]);
+    
     
     for(nn=0;nn<temp;nn++){
         r_state[nn]=p_state[nn];
     }
    
+    
 }
