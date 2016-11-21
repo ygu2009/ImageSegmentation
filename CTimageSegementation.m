@@ -223,7 +223,7 @@ while iter<100 %& diff_Q>1e-10
     
     hold off
     imshow(label2rgb(seg, mycolor))
-    title(strcat('iter:',num2str(iter)))
+    title(['iter:',num2str(iter)])
     drawnow;
     
     if iter<10 || mod(iter, 5)==0
