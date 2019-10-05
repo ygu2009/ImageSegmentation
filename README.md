@@ -1,7 +1,7 @@
 # ImageSegmentation
-## This code is for demonstration of 2D CT image segmentation. And it could be futher optimized and esaier to extended to 3D CT image segmentation. 
+### This code is for demonstration of 2D CT image segmentation. And it could be futher optimized and esaier to extended to 3D CT image segmentation. 
 ![Demo](./pics/CTimage.png)
-### The MAPEM MAF segmentation process:
+#### The MAPEM MAF segmentation process:
 ![Demo](./pics/MAPEMMRF.gif)
-### The regular EM MRF segmentation process: (for comparison)
+#### The regular EM MRF segmentation process: (for comparison)
 ![Demo](./pics/regularEMMRF.gif)
